@@ -1,17 +1,49 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { Component } from 'react';
+import { StyleSheet, AppRegistry, Text, View } from 'react-native';
+import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
+import logger from "redux-logger";
+import { Provider } from 'react-redux';
+import thunkMiddleware from 'redux-thunk';
+import {
+  Scene,
+  Router,
+  Actions,
+  Reducer,
+  ActionConst,
+  Overlay,
+  Tabs,
+  Modal,
+  Drawer,
+  Stack,
+  Lightbox,
+} from 'react-native-router-flux';
 
-export default class App extends React.Component {
+import Content from './containers/Content';
+import Home from './components/Home';
+import reducer from './reducers';
+import { listenApi } from './actions';
+
+const store = createStore(reducer, applyMiddleware(logger), applyMiddleware(thunkMiddleware));
+store.dispatch(listenApi());
+
+class App extends React.Component {
   render() {
     return (
-      <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
-        <Text>Changes you make will automatically reload.</Text>
-        <Text>Shake your phone to open the developer menu.</Text>
-      </View>
+      <Provider store={store}>
+        <Router>
+          <Stack key="root">
+            <Scene key="Home" component={Home} title="Home" initial/>
+            <Scene key="Content" component={Content} path="content/:index" title="Content" duration={1}/>
+          </Stack>
+        </Router>
+      </Provider>
     );
   }
 }
+
+export default App;
+
+AppRegistry.registerComponent('AwesomeProject', () => App);
 
 const styles = StyleSheet.create({
   container: {
